@@ -7,6 +7,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.ui.InputValidator
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TestDialog
+import com.intellij.openapi.ui.TestDialogManager
 import com.intellij.openapi.ui.TestInputDialog
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
@@ -29,7 +30,7 @@ class ExtractionCancellationTest: PlatformBaseTest() {
         myFixture.addFileToProject("assets/test.json", testJson)
         val action = myFixture.findSingleIntention(hint)
         assertNotNull(action)
-        Messages.setTestInputDialog(object : TestInputDialog {
+        TestDialogManager.setTestInputDialog(object : TestInputDialog {
             override fun show(message: String): String? = null
             override fun show(message: String, validator: InputValidator?) = null
         })
@@ -44,11 +45,11 @@ class ExtractionCancellationTest: PlatformBaseTest() {
         myFixture.addFileToProject("assets/test.json", testJson)
         val action = myFixture.findSingleIntention(hint)
         assertNotNull(action)
-        Messages.setTestInputDialog(object : TestInputDialog {
+        TestDialogManager.setTestInputDialog(object : TestInputDialog {
             override fun show(message: String): String? = null
             override fun show(message: String, validator: InputValidator?) = "not:a:key{here}"
         })
-        Messages.setTestDialog(object : TestDialog {
+        TestDialogManager.setTestDialog(object : TestDialog {
             override fun show(message: String): Int {
                 assertEquals("Invalid i18n key", message)
                 return 1

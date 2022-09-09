@@ -27,7 +27,7 @@ class ReferencesTestJs : PlatformBaseTest() {
         read {
             val element = myFixture.file.findElementAt(myFixture.caretOffset)?.parent
             assertNotNull(element)
-            assertTrue("Failed ${tg.ext()}, ${cg.ext()}", element!!.references.size > 0)
+            assertTrue("Failed ${tg.ext()}, ${cg.ext()}", element!!.references.isNotEmpty())
             assertEquals("Failed ${tg.ext()}, ${cg.ext()}", "Reference in json", element.references[0].resolve()?.text?.unQuote())
         }
     }
@@ -230,7 +230,7 @@ class ReferencesTestJs : PlatformBaseTest() {
         myFixture.configureByText("resolved.${cg.ext()}", cg.generate("\"test:ref.section.key<caret>\""))
         val element = myFixture.file.findElementAt(myFixture.caretOffset)?.parent
         assertNotNull(element)
-        assertTrue("Failed ${tg.ext()}, ${cg.ext()}", element!!.references.size > 0)
+        assertTrue("Failed ${tg.ext()}, ${cg.ext()}", element!!.references.isNotEmpty())
         assertEquals("Failed ${tg.ext()}, ${cg.ext()}", "Reference in json", element.references[0].resolve()?.text?.unQuote())
     }
 }

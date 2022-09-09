@@ -49,7 +49,7 @@ abstract class CompositeKeyAnnotatorBase(private val keyExtractor: FullKeyExtrac
                 if (!allEqual && config.partialTranslationInspectionEnabled) {
                     annotationHelper.annotatePartiallyTranslated(fullKey, references)
                 } else {
-                    if (mostResolvedReference.element?.isLeaf() ?: false) {
+                    if (mostResolvedReference.element?.isLeaf() == true) {
                         annotationHelper.annotateResolved(fullKey)
                     } else {
                         annotationHelper.annotateReferenceToObject(fullKey)

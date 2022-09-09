@@ -40,7 +40,7 @@ private class YamlReferenceAssistant : TranslationReferenceAssistant<YAMLKeyValu
     override fun pattern(): ElementPattern<out YAMLKeyValue> = PlatformPatterns.psiElement(YAMLKeyValue::class.java)
 
     private fun parents(element: YAMLKeyValue): List<String> =
-        CollectingSequence(element.parents()) {
+        CollectingSequence(element.parents(true)) {
             when {
                 it is YAMLKeyValue -> it.key!!.text.unQuote()
                 it is YAMLFile -> it.name.substringBeforeLast(".")

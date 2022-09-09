@@ -27,27 +27,30 @@ class AnnotationHelper(private val holder: AnnotationHolder, private val rangesC
      * Annotates resolved translation key
      */
     fun annotateResolved(fullKey: FullKey) {
-        holder.createAnnotation(infoSeverity, rangesCalculator.compositeKeyFullBounds(fullKey), null).textAttributes = RESOLVED_COLOR
+        holder.newAnnotation(infoSeverity, "")
+            .range(rangesCalculator.compositeKeyFullBounds(fullKey))
+            .textAttributes(RESOLVED_COLOR)
+            .create()
     }
 
     /**
      * Annotates reference to object, not a leaf key in json/yaml
      */
     fun annotateReferenceToObject(fullKey: FullKey) {
-        holder.createAnnotation(errorSeverity, rangesCalculator.compositeKeyFullBounds(fullKey), PluginBundle.getMessage("annotator.object.reference"))
+        holder.newAnnotation(errorSeverity, PluginBundle.getMessage("annotator.object.reference"))
+            .range(rangesCalculator.compositeKeyFullBounds(fullKey))
+            .create()
     }
 
     /**
      * Annotates unresolved namespace
      */
     fun unresolvedNs(fullKey: FullKey, ns: Literal) {
-        val annotation = holder.createAnnotation(
-            errorSeverity,
-            rangesCalculator.unresolvedNs(fullKey),
-            PluginBundle.getMessage("annotator.unresolved.ns")
-        )
         Settings.getInstance(project).mainFactory().contentGenerators().forEach {
-            annotation.registerFix(CreateTranslationFileQuickFix(fullKey, it, folderSelector, ns.text))
+            holder.newAnnotation(errorSeverity, PluginBundle.getMessage("annotator.unresolved.ns"))
+                .range(rangesCalculator.unresolvedNs(fullKey))
+                .withFix(CreateTranslationFileQuickFix(fullKey, it, folderSelector, ns.text))
+                .create()
         }
     }
 
@@ -55,36 +58,31 @@ class AnnotationHelper(private val holder: AnnotationHolder, private val rangesC
      * Annotates unresolved default namespace
      */
     fun unresolvedDefaultNs(fullKey: FullKey) {
-        holder.createAnnotation(
-            errorSeverity,
-            rangesCalculator.compositeKeyFullBounds(fullKey),
-            PluginBundle.getMessage("annotator.missing.default.ns")
-        )
+        holder.newAnnotation(errorSeverity, PluginBundle.getMessage("annotator.missing.default.ns"))
+            .range(rangesCalculator.compositeKeyFullBounds(fullKey))
+            .create()
     }
 
     /**
      * Annotates unresolved composite key
      */
     fun unresolvedKey(fullKey: FullKey, mostResolvedReference: PropertyReference<PsiElement>) {
-        val annotation = holder.createAnnotation(
-            errorSeverity,
-            rangesCalculator.unresolvedKey(fullKey, mostResolvedReference.path),
-            PluginBundle.getMessage("annotator.unresolved.key"))
         val generators = Settings.getInstance(project).mainFactory().contentGenerators()
-        annotation.registerFix(CreateKeyQuickFix(fullKey, UserChoice(), PluginBundle.getMessage("quickfix.create.key"), generators))
-        annotation.registerFix(CreateKeyQuickFix(fullKey, AllSourcesSelector(), PluginBundle.getMessage("quickfix.create.key.in.files"), generators))
+        holder.newAnnotation(errorSeverity, PluginBundle.getMessage("annotator.unresolved.key"))
+            .withFix(CreateKeyQuickFix(fullKey, UserChoice(), PluginBundle.getMessage("quickfix.create.key"), generators))
+            .withFix(CreateKeyQuickFix(fullKey, AllSourcesSelector(), PluginBundle.getMessage("quickfix.create.key.in.files"), generators))
+            .range(rangesCalculator.unresolvedKey(fullKey, mostResolvedReference.path))
+            .create()
     }
 
     /**
      * Annotates partially translated key and creates quick fix for it.
      */
     fun annotatePartiallyTranslated(fullKey: FullKey, references: List<PropertyReference<PsiElement>>) {
-        val minimalResolvedReference = references.minBy { it.path.size }!!
-        val annotation = holder.createAnnotation(
-            errorSeverity,
-            rangesCalculator.unresolvedKey(fullKey, minimalResolvedReference.path),
-            PluginBundle.getMessage("annotator.partially.translated")
-        )
-        annotation.registerFix(CreateMissingKeysQuickFix(fullKey, Settings.getInstance(project).mainFactory(), references, PluginBundle.getMessage("quickfix.create.missing.keys")))
+        val minimalResolvedReference = references.minBy { it.path.size }
+        holder.newAnnotation(errorSeverity, PluginBundle.getMessage("annotator.partially.translated"))
+            .range(rangesCalculator.unresolvedKey(fullKey, minimalResolvedReference.path))
+            .withFix(CreateMissingKeysQuickFix(fullKey, Settings.getInstance(project).mainFactory(), references, PluginBundle.getMessage("quickfix.create.missing.keys")))
+            .create()
     }
 }

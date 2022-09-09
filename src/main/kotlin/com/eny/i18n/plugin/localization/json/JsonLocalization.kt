@@ -43,7 +43,7 @@ private class JsonReferenceAssistant : TranslationReferenceAssistant<JsonStringL
         }
 
     private fun parents(element: JsonStringLiteral): List<String> =
-        CollectingSequence(element.parents()) {
+        CollectingSequence(element.parents(true)) {
             when {
                 it is JsonProperty -> it.name
                 it is JsonFile -> it.name.substringBeforeLast(".")
